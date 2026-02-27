@@ -143,6 +143,43 @@ def manage_players():
     players = User.query.filter_by(role="player").all()  # include inactive accounts
     return render_template("manage_players.html", players=players)
 
+
+@app.route("/delete_player_hard/<int:player_id>", methods=["POST"])
+@login_required
+def delete_player_hard(player_id):
+    """Permanently delete a player and all related data."""
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    player = db.session.get(User, player_id)
+    if not player or player.role not in ("player", "viewer"):
+        flash("Player not found.")
+        return redirect(url_for("manage_players"))
+
+    # delete all stats + screenshots for this player
+    stats = Stats.query.filter_by(player_id=player.id).all()
+    for stat in stats:
+        if stat.screenshot:
+            fpath = os.path.join(app.config["UPLOAD_FOLDER"], stat.screenshot)
+            if os.path.isfile(fpath):
+                try:
+                    os.remove(fpath)
+                except OSError:
+                    pass
+        db.session.delete(stat)
+
+    # remove attendance records and activity logs
+    Attendance.query.filter_by(player_id=player.id).delete()
+    ActivityLog.query.filter_by(user_id=player.id).delete()
+
+    # finally remove the player account itself
+    username = player.username
+    db.session.delete(player)
+    db.session.commit()
+
+    flash(f"Player {username} permanently deleted with all records.")
+    return redirect(url_for("manage_players"))
+
 @app.route("/delete_player/<int:player_id>")
 @login_required
 def delete_player(player_id):
@@ -295,6 +332,38 @@ def leaderboard():
     board = sorted(board, key=lambda x: x["score"], reverse=True)
 
     return render_template("leaderboard.html", board=board)
+
+
+# ----------- PUBLIC TEAM ROSTER (NO LOGIN REQUIRED) -----------
+@app.route("/team")
+def public_team():
+    players = User.query.filter_by(role="player", active=True).all()
+
+    board = []
+    for p in players:
+        records = Stats.query.filter_by(player_id=p.id).all()
+
+        total_kills = sum(r.kills for r in records)
+        total_booyah = sum(r.booyah for r in records)
+        total_damage = sum(r.damage for r in records)
+        total_survival = sum(r.survival for r in records)
+
+        score = (total_kills * 2) + (total_booyah * 10) + (total_damage / 100) + (total_survival * 0.5)
+
+        board.append({
+            "name": p.username,
+            "ff_uid": p.ff_uid,
+            "player_role": p.player_role,
+            "kills": total_kills,
+            "booyah": total_booyah,
+            "damage": total_damage,
+            "survival": total_survival,
+            "score": round(score, 2)
+        })
+
+    board = sorted(board, key=lambda x: x["score"], reverse=True)
+
+    return render_template("public_team.html", board=board)
 
 
 # ----------- ANALYTICS REPORT API -----------

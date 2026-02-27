@@ -40,6 +40,9 @@
       {% else %}
       <a href="/restore_player/{{ p.id }}" class="btn btn-sm btn-success" onclick="return confirm('Restore player {{ p.username }}?');">Restore</a>
       {% endif %}
+      <form method="POST" action="{{ url_for('delete_player_hard', player_id=p.id) }}" style="display:inline-block; margin-top:4px;" onsubmit="return confirm('Permanently delete {{ p.username }} and all their stats, attendance and proofs? This cannot be undone.');">
+        <button type="submit" class="btn btn-sm btn-outline-danger">Hard delete</button>
+      </form>
     </td>
     <td><a href="/reset_password/{{ p.id }}" class="btn btn-sm btn-outline-info">Reset password</a></td>
 </tr>

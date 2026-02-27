@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}Team Roster{% endblock %}
+
+{% block content %}
+<div class="public-header">
+  <div>
+    <h1 class="neon-title mb-1">TW ESPORTS Team Roster</h1>
+    <p class="muted mb-0">Public view • Team members, roles, UID and points (no login required)</p>
+  </div>
+  <div class="public-cta">
+    <a href="{{ url_for('login') }}" class="btn-neon" style="text-decoration:none; display:inline-flex; align-items:center; gap:8px;">🔐 Member Login</a>
+  </div>
+</div>
+
+{% if board|length > 0 %}
+<div class="public-top3">
+  {% for p in board[:3] %}
+  <div class="glass-card topcard rank-{{ loop.index }}">
+    <div class="topcard-row">
+      <div class="topcard-rank">
+        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+        <span class="muted small">#{{ loop.index }}</span>
+      </div>
+      <div style="flex:1; text-align:left;">
+        <div class="topcard-name">{{ p.name }}</div>
+        <div class="muted small" style="margin-top:2px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <span class="pill">UID: {{ p.ff_uid or '-' }}</span>
+          <span class="role-badge {% if (p.player_role or '')|lower == 'rusher' %}role-rusher{% elif (p.player_role or '')|lower == 'sniper' %}role-sniper{% elif (p.player_role or '')|lower == 'support' %}role-support{% else %}role-unknown{% endif %}">
+            {{ p.player_role or 'Role' }}
+          </span>
+        </div>
+      </div>
+      <div class="topcard-points">
+        <div class="muted small">Points</div>
+        <div class="points">{{ p.score }}</div>
+      </div>
+    </div>
+    <div class="topcard-metrics">
+      <div class="metric"><span class="muted small">Kills</span><span class="val" style="color: var(--accent-primary);">{{ p.kills }}</span></div>
+      <div class="metric"><span class="muted small">Booyah</span><span class="val" style="color: var(--gold);">{{ p.booyah }}</span></div>
+      <div class="metric"><span class="muted small">Damage</span><span class="val">{{ p.damage }}</span></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="glass-card public-tools">
+  <div class="tools-row">
+    <div style="flex:1; min-width: 220px;">
+      <label class="muted small" for="teamSearch" style="display:block; text-align:left; margin-bottom:6px;">Search player / UID / role</label>
+      <input id="teamSearch" type="text" class="form-control" placeholder="Type to filter..." />
+    </div>
+    <div style="min-width: 240px; text-align:left;">
+      <div class="muted small" style="margin-bottom:6px;">Points formula</div>
+      <div class="pill" title="Scoring formula">2×kills + 10×booyah + damage/100 + 0.5×survival</div>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
+      <thead>
+        <tr style="color: var(--accent-primary); font-weight: 700; text-align: left;">
+          <th style="padding: 12px; width: 70px;">Rank</th>
+          <th style="padding: 12px;">Player</th>
+          <th style="padding: 12px;">Free Fire UID</th>
+          <th style="padding: 12px;">Role</th>
+          <th style="padding: 12px; text-align: right;">Kills</th>
+          <th style="padding: 12px; text-align: right;">Booyah</th>
+          <th class="col-damage" style="padding: 12px; text-align: right;">Damage</th>
+          <th class="col-survival" style="padding: 12px; text-align: right;">Survival</th>
+          <th style="padding: 12px; text-align: right;">Points</th>
+        </tr>
+      </thead>
+      <tbody id="teamBody">
+        {% for p in board %}
+        <tr class="team-row" data-name="{{ p.name|lower }}" data-uid="{{ (p.ff_uid or '')|lower }}" data-role="{{ (p.player_role or '')|lower }}" style="background: #0f1624; border-radius: 8px;">
+          <td style="padding: 12px; border-radius: 8px 0 0 8px;">
+            <span class="rank-pill {% if loop.index==1 %}rank-gold{% elif loop.index==2 %}rank-silver{% elif loop.index==3 %}rank-bronze{% endif %}">#{{ loop.index }}</span>
+          </td>
+          <td style="padding: 12px; font-weight: 700; color: var(--text-secondary);">
+            {{ p.name }}
+          </td>
+          <td style="padding: 12px;">
+            <span class="uid-text">{{ p.ff_uid or '-' }}</span>
+            {% if p.ff_uid %}
+              <button type="button" class="btn btn-sm btn-outline-info copy-btn" data-copy="{{ p.ff_uid }}" style="margin-left:8px;">Copy</button>
+            {% endif %}
+          </td>
+          <td style="padding: 12px;">
+            <span class="role-badge {% if (p.player_role or '')|lower == 'rusher' %}role-rusher{% elif (p.player_role or '')|lower == 'sniper' %}role-sniper{% elif (p.player_role or '')|lower == 'support' %}role-support{% else %}role-unknown{% endif %}">
+              {{ p.player_role or '-' }}
+            </span>
+          </td>
+          <td style="padding: 12px; text-align: right;">{{ p.kills }}</td>
+          <td style="padding: 12px; text-align: right; color: var(--gold);">{{ p.booyah }}</td>
+          <td class="col-damage" style="padding: 12px; text-align: right;">{{ p.damage }}</td>
+          <td class="col-survival" style="padding: 12px; text-align: right;">{{ p.survival }}</td>
+          <td style="padding: 12px; text-align: right; border-radius: 0 8px 8px 0; color: var(--accent-primary); font-weight: 700;">
+            {{ p.score }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div id="emptyState" class="glass-card" style="margin-top: 14px; display:none; text-align:center;">
+    <div style="font-size: 40px; margin-bottom: 8px;">🔎</div>
+    <div style="font-weight:700; color: var(--text-secondary);">No matching players</div>
+    <div class="muted small" style="margin-top:6px;">Try a different search term.</div>
+  </div>
+</div>
+
+<style>
+  .public-header{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom: 16px;
+  }
+  .public-cta{ display:flex; gap:10px; }
+  .public-top3{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .topcard{ padding: 16px; }
+  .topcard-row{ display:flex; gap:12px; align-items:center; }
+  .topcard-rank{
+    width: 64px;
+    height: 64px;
+    border-radius: 14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .rank-1 .topcard-rank{ border-color: rgba(255,215,0,0.25); box-shadow: 0 0 24px rgba(255,215,0,0.08); }
+  .rank-2 .topcard-rank{ border-color: rgba(192,192,192,0.25); box-shadow: 0 0 24px rgba(192,192,192,0.08); }
+  .rank-3 .topcard-rank{ border-color: rgba(205,127,50,0.25); box-shadow: 0 0 24px rgba(205,127,50,0.08); }
+  .topcard-name{ font-weight: 800; color: var(--text-primary); letter-spacing: 0.3px; }
+  .topcard-points{ text-align:right; min-width: 84px; }
+  .topcard-points .points{ font-weight: 900; font-size: 1.35rem; color: var(--accent-primary); }
+  .topcard-metrics{ display:flex; justify-content:space-between; gap:10px; margin-top: 12px; }
+  .metric{ display:flex; flex-direction:column; text-align:left; gap:2px; min-width: 70px; }
+  .metric .val{ font-weight: 800; color: var(--text-primary); }
+
+  .public-tools{ margin-bottom: 14px; }
+  .tools-row{ display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; }
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    padding: 8px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .rank-pill{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 800;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--text-secondary);
+  }
+  .rank-gold{ border-color: rgba(255,215,0,0.25); color: var(--gold); }
+  .rank-silver{ border-color: rgba(192,192,192,0.25); color: #d9d9d9; }
+  .rank-bronze{ border-color: rgba(205,127,50,0.25); color: #d99b5e; }
+
+  .role-badge{
+    display:inline-flex;
+    align-items:center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.02);
+    color: var(--text-secondary);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .role-rusher{ border-color: rgba(34,255,136,0.25); color: var(--accent-primary); }
+  .role-sniper{ border-color: rgba(0,229,255,0.25); color: var(--cyan-glow); }
+  .role-support{ border-color: rgba(124,92,255,0.35); color: var(--accent-secondary); }
+  .role-unknown{ opacity: 0.9; }
+
+  .team-row:hover{
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02)) !important;
+    transform: translateX(2px);
+    transition: all .12s ease;
+  }
+
+  @media (max-width: 820px){
+    .col-damage, .col-survival{ display:none; }
+  }
+  @media (max-width: 520px){
+    .copy-btn{ display:none; }
+  }
+</style>
+
+<script>
+  (function(){
+    var search = document.getElementById('teamSearch');
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#teamBody .team-row'));
+    var empty = document.getElementById('emptyState');
+
+    function applyFilter(){
+      var term = (search && search.value ? search.value : '').trim().toLowerCase();
+      var shown = 0;
+      rows.forEach(function(r){
+        var hay = (r.getAttribute('data-name') || '') + ' ' + (r.getAttribute('data-uid') || '') + ' ' + (r.getAttribute('data-role') || '');
+        var ok = !term || hay.indexOf(term) !== -1;
+        r.style.display = ok ? '' : 'none';
+        if(ok) shown++;
+      });
+      if(empty) empty.style.display = (shown === 0) ? 'block' : 'none';
+    }
+
+    if(search){
+      search.addEventListener('input', applyFilter);
+      applyFilter();
+    }
+
+    // UID copy buttons
+    document.querySelectorAll('.copy-btn').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var value = btn.getAttribute('data-copy') || '';
+        if(!value) return;
+        try{
+          await navigator.clipboard.writeText(value);
+          var old = btn.textContent;
+          btn.textContent = 'Copied';
+          setTimeout(function(){ btn.textContent = old; }, 900);
+        }catch(e){
+          // fallback: select text using prompt
+          window.prompt('Copy UID:', value);
+        }
+      });
+    });
+  })();
+</script>
+{% endblock %}
+
