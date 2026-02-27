@@ -43,7 +43,7 @@ def log_activity(username, user_id, action):
 with app.app_context():
     db.create_all()
     if User.query.count() == 0:
-        admin_user = os.environ.get("ADMIN_USERNAME", "admin")
+        admin_user = os.environ.get("ADMIN_USERNAME", "TW_AIMED")
         admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
         db.session.add(User(
             username=admin_user,
