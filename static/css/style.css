@@ -75,6 +75,34 @@ a:hover{
     transform: scale(1.04);
 }
 
+/* Footer email should look like text (not a button) */
+.footer-contact{
+    display: block;
+    opacity: 1;
+    color: var(--text-secondary);
+}
+.footer-contact .footer-email{
+    display: inline;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+    color: var(--accent-primary);
+    font-weight: 600;
+    font-size: 0.85em;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.footer-contact .footer-email:hover{
+    color: var(--cyan-glow);
+    box-shadow: none;
+    border: none;
+    transform: none;
+}
+
 .notice{
     background: linear-gradient(90deg, rgba(139, 0, 0, 0.2), rgba(220, 20, 60, 0.15));
     padding: 14px;

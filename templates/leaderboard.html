@@ -35,10 +35,10 @@
           <td style="padding: 12px;">
             <a href="/player/{{ player.name }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: color .12s ease;">{{ player.name }}</a>
           </td>
-          <td style="padding: 12px; text-align: right;">{{ player.kills }}</td>
-          <td style="padding: 12px; text-align: right; color: var(--gold);">{{ player.booyah }}</td>
-          <td style="padding: 12px; text-align: right;">{{ player.damage }}</td>
-          <td style="padding: 12px; text-align: right;">{{ player.survival }}</td>
+          <td style="padding: 12px; text-align: right; {% if loop.index==1 %}color: var(--accent-primary); font-weight: 700;{% elif loop.index==2 %}color: var(--cyan-glow); font-weight: 700;{% elif loop.index==3 %}color: var(--gold); font-weight: 700;{% endif %}">{{ player.kills }}</td>
+          <td style="padding: 12px; text-align: right; {% if loop.index==1 %}color: var(--gold); font-weight: 700;{% elif loop.index==2 %}color: var(--gold); font-weight: 600;{% elif loop.index==3 %}color: var(--gold); font-weight: 600;{% else %}color: var(--gold);{% endif %}">{{ player.booyah }}</td>
+          <td style="padding: 12px; text-align: right; {% if loop.index==1 %}color: var(--accent-primary); font-weight: 600;{% elif loop.index==2 %}color: var(--cyan-glow); font-weight: 600;{% elif loop.index==3 %}color: var(--gold); font-weight: 600;{% endif %}">{{ player.damage }}</td>
+          <td style="padding: 12px; text-align: right; {% if loop.index==1 %}color: var(--accent-primary); font-weight: 600;{% elif loop.index==2 %}color: var(--cyan-glow); font-weight: 600;{% elif loop.index==3 %}color: var(--gold); font-weight: 600;{% endif %}">{{ player.survival }}</td>
           <td style="padding: 12px; text-align: right; border-radius: 0 8px 8px 0; color: var(--accent-primary); font-weight: 700;">{{ player.score }}</td>
         </tr>
         {% endfor %}
