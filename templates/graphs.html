@@ -19,6 +19,16 @@
       <label class="muted small">To:</label>
       <input type="date" id="filterEnd" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6; padding: 6px; border-radius: 6px;">
     </div>
+    <div>
+      <label class="muted small">Mode:</label>
+      <select id="matchType" class="form-select" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6; padding: 6px; border-radius: 6px;">
+        <option value="all">All</option>
+        <option value="BR">BR</option>
+        <option value="CS">CS</option>
+        <option value="Scrims">Scrims</option>
+        <option value="Custom">Custom</option>
+      </select>
+    </div>
     <button class="btn-neon" id="applyFilter" style="padding: 6px 12px;">Filter</button>
     <button class="btn-ghost" id="exportCsv" style="padding: 6px 12px; cursor: pointer;">📥 Export CSV</button>
   </div>

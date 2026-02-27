@@ -1,20 +1,22 @@
 let killsChartInstance = null;
 let winChartInstance = null;
 
-function buildReportUrl(start, end) {
+function buildReportUrl(start, end, matchType) {
   let url = "/api/report";
   const params = [];
   if (start) params.push(`start=${encodeURIComponent(start)}`);
   if (end) params.push(`end=${encodeURIComponent(end)}`);
+  if (matchType && matchType !== "all") params.push(`type=${encodeURIComponent(matchType)}`);
   if (params.length) url += "?" + params.join("&");
   return url;
 }
 
-function buildCsvUrl(start, end) {
+function buildCsvUrl(start, end, matchType) {
   let url = "/api/report/csv";
   const params = [];
   if (start) params.push(`start=${encodeURIComponent(start)}`);
   if (end) params.push(`end=${encodeURIComponent(end)}`);
+  if (matchType && matchType !== "all") params.push(`type=${encodeURIComponent(matchType)}`);
   if (params.length) url += "?" + params.join("&");
   return url;
 }
@@ -51,7 +53,7 @@ function palette(i) {
   return colors[i % colors.length];
 }
 
-function renderTextReport(data, start, end) {
+function renderTextReport(data, start, end, matchType) {
   const report = document.getElementById("report");
   if (!report) return;
 
@@ -70,6 +72,10 @@ function renderTextReport(data, start, end) {
   data.forEach((p) => {
     if ((p.kills || 0) > (best.kills || 0)) best = p;
   });
+
+  const modeLabel = matchType && matchType !== "all"
+    ? `<span class="pill">Mode: ${matchType}</span>`
+    : `<span class="pill">Mode: All</span>`;
 
   const rangeLabel = (start || end)
     ? `<span class="pill">Range: ${start || "…"} → ${end || "…"}</span>`
@@ -101,7 +107,10 @@ function renderTextReport(data, start, end) {
           <div class="muted small">Top performer</div>
           <div style="font-weight:900; font-size:1.1rem; color: var(--text-primary);">🔥 ${best.name} (${best.kills || 0} kills)</div>
         </div>
-        ${rangeLabel}
+        <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+          ${modeLabel}
+          ${rangeLabel}
+        </div>
       </div>
     </div>
 
@@ -126,10 +135,10 @@ function renderTextReport(data, start, end) {
   `;
 }
 
-async function loadReport(start, end) {
+async function loadReport(start, end, matchType) {
   setLoading(true);
 
-  const url = buildReportUrl(start, end);
+  const url = buildReportUrl(start, end, matchType);
   const res = await fetch(url);
   const data = await res.json();
 
@@ -208,7 +217,7 @@ async function loadReport(start, end) {
     });
   }
 
-  renderTextReport(sorted, start, end);
+  renderTextReport(sorted, start, end, matchType || "all");
 }
 
 // wire up filter controls if present
@@ -216,25 +225,27 @@ const startInput = document.getElementById("filterStart");
 const endInput = document.getElementById("filterEnd");
 const applyBtn = document.getElementById("applyFilter");
 const exportBtn = document.getElementById("exportCsv");
+const matchTypeSelect = document.getElementById("matchType");
 
 function currentRange() {
   return {
     start: startInput && startInput.value ? startInput.value : "",
-    end: endInput && endInput.value ? endInput.value : ""
+    end: endInput && endInput.value ? endInput.value : "",
+    type: matchTypeSelect && matchTypeSelect.value ? matchTypeSelect.value : "all"
   };
 }
 
 if (applyBtn) {
   applyBtn.addEventListener("click", () => {
     const r = currentRange();
-    loadReport(r.start, r.end);
+    loadReport(r.start, r.end, r.type);
   });
 }
 
 if (exportBtn) {
   exportBtn.addEventListener("click", () => {
     const r = currentRange();
-    window.location = buildCsvUrl(r.start, r.end);
+    window.location = buildCsvUrl(r.start, r.end, r.type);
   });
 }
 

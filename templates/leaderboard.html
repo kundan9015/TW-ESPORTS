@@ -8,8 +8,25 @@
 
 {% block content %}
 <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-  <h1 class="neon-title">🏆 Tournament Leaderboard</h1>
-  <input id="tableSearch" type="text" class="form-control" placeholder="Search players..." style="max-width: 200px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6;">
+  <div>
+    <h1 class="neon-title mb-1">🏆 Tournament Leaderboard</h1>
+    <p class="muted small mb-0">
+      Mode:
+      {% set mode = match_type or 'overall' %}
+      <span style="color: var(--accent-primary); font-weight: 600; text-transform: uppercase;">{{ 'Overall' if mode == 'overall' else mode }}</span>
+    </p>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+    <select id="lbMode" class="form-select form-select-sm" style="min-width:120px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color:#e6eef6;">
+      {% set mode = match_type or 'overall' %}
+      <option value="overall" {% if mode=='overall' %}selected{% endif %}>Overall</option>
+      <option value="BR" {% if mode=='BR' %}selected{% endif %}>BR</option>
+      <option value="CS" {% if mode=='CS' %}selected{% endif %}>CS</option>
+      <option value="Scrims" {% if mode=='Scrims' %}selected{% endif %}>Scrims</option>
+      <option value="Custom" {% if mode=='Custom' %}selected{% endif %}>Custom</option>
+    </select>
+    <input id="tableSearch" type="text" class="form-control form-control-sm" placeholder="Search players..." style="max-width: 200px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6;">
+  </div>
 </div>
 
 <div class="glass-card">
@@ -83,12 +100,26 @@
 <script>
 // Search/filter
 const searchInput = document.getElementById('tableSearch');
-searchInput.addEventListener('input', (e) => {
-  const term = e.target.value.toLowerCase();
-  document.querySelectorAll('#board tr').forEach((row) => {
-    const name = row.cells[1].textContent.toLowerCase();
-    row.style.display = name.includes(term) ? '' : 'none';
+if (searchInput) {
+  searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    document.querySelectorAll('#board tr').forEach((row) => {
+      const name = row.cells[1].textContent.toLowerCase();
+      row.style.display = name.includes(term) ? '' : 'none';
+    });
   });
-});
+}
+
+// Mode filter (server-side via ?type=)
+const lbMode = document.getElementById('lbMode');
+if (lbMode) {
+  lbMode.addEventListener('change', (e) => {
+    const val = e.target.value || 'overall';
+    const base = window.location.pathname;
+    const params = new URLSearchParams(window.location.search);
+    params.set('type', val);
+    window.location = base + '?' + params.toString();
+  });
+}
 </script>
 {% endblock %}

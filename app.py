@@ -6,6 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from sqlalchemy import text
 
 from config import Config
 from models import db, User, Stats, Announcement, Attendance, ActivityLog, Notification
@@ -42,6 +43,12 @@ def log_activity(username, user_id, action):
 # Create tables and default admin if no users exist
 with app.app_context():
     db.create_all()
+    # lightweight migration: ensure match_type column exists on Stats
+    try:
+        db.session.execute(text("ALTER TABLE stats ADD COLUMN match_type VARCHAR(20)"))
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
     if User.query.count() == 0:
         admin_user = os.environ.get("ADMIN_USERNAME", "TW_AIMED")
         admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
@@ -297,6 +304,10 @@ def add_stats():
         booyah = int(request.form.get("booyah", 0))
         damage = int(request.form.get("damage", 0))
         survival = int(request.form.get("survival", 0))
+        match_type = (request.form.get("match_type") or "").strip()
+        allowed_types = {"BR", "CS", "Scrims", "Custom"}
+        if match_type and match_type not in allowed_types:
+            match_type = None
 
         # screenshot upload
         file = request.files.get("screenshot")
@@ -317,7 +328,8 @@ def add_stats():
             booyah=booyah,
             damage=damage,
             survival=survival,
-            screenshot=filename
+            screenshot=filename,
+            match_type=match_type
         )
 
         db.session.add(new_record)
@@ -342,19 +354,34 @@ def add_stats():
 @login_required
 def leaderboard():
 
+    raw_type = (request.args.get("type") or "").strip().lower()
+    type_map = {
+        "br": "BR",
+        "cs": "CS",
+        "scrims": "Scrims",
+        "custom": "Custom",
+        "all": "overall",
+        "overall": "overall",
+        "": "overall",
+    }
+    match_type = type_map.get(raw_type, "overall")
+
     players = User.query.filter_by(role="player", active=True).all()
 
     board = []
 
     for p in players:
-        records = Stats.query.filter_by(player_id=p.id).all()
+        q = Stats.query.filter_by(player_id=p.id)
+        if match_type != "overall":
+            q = q.filter(Stats.match_type == match_type)
+        records = q.all()
 
         total_kills = sum(r.kills for r in records)
         total_booyah = sum(r.booyah for r in records)
         total_damage = sum(r.damage for r in records)
         total_survival = sum(r.survival for r in records)
 
-        score = (total_kills*2) + (total_booyah*10) + (total_damage/100) + (total_survival*0.5)
+        score = (total_kills * 2) + (total_booyah * 10) + (total_damage / 100) + (total_survival * 0.5)
 
         board.append({
             "name": p.username,
@@ -362,23 +389,38 @@ def leaderboard():
             "booyah": total_booyah,
             "damage": total_damage,
             "survival": total_survival,
-            "score": round(score,2)
+            "score": round(score, 2)
         })
 
     # sort by score descending
     board = sorted(board, key=lambda x: x["score"], reverse=True)
 
-    return render_template("leaderboard.html", board=board)
+    return render_template("leaderboard.html", board=board, match_type=match_type)
 
 
 # ----------- PUBLIC TEAM ROSTER (NO LOGIN REQUIRED) -----------
 @app.route("/team")
 def public_team():
+    raw_type = (request.args.get("type") or "").strip().lower()
+    type_map = {
+        "br": "BR",
+        "cs": "CS",
+        "scrims": "Scrims",
+        "custom": "Custom",
+        "all": "overall",
+        "overall": "overall",
+        "": "overall",
+    }
+    match_type = type_map.get(raw_type, "overall")
+
     players = User.query.filter_by(role="player", active=True).all()
 
     board = []
     for p in players:
-        records = Stats.query.filter_by(player_id=p.id).all()
+        q = Stats.query.filter_by(player_id=p.id)
+        if match_type != "overall":
+            q = q.filter(Stats.match_type == match_type)
+        records = q.all()
 
         total_kills = sum(r.kills for r in records)
         total_booyah = sum(r.booyah for r in records)
@@ -400,7 +442,7 @@ def public_team():
 
     board = sorted(board, key=lambda x: x["score"], reverse=True)
 
-    return render_template("public_team.html", board=board)
+    return render_template("public_team.html", board=board, match_type=match_type)
 
 
 # ----------- ANALYTICS REPORT API -----------
@@ -410,6 +452,7 @@ def report_data():
     # optional date range filtering via query params (YYYY-MM-DD)
     start = request.args.get('start')
     end = request.args.get('end')
+    match_type = request.args.get('type')
 
     start_date = None
     end_date = None
@@ -427,6 +470,8 @@ def report_data():
 
     for p in players:
         q = Stats.query.filter_by(player_id=p.id)
+        if match_type and match_type.lower() != "all":
+            q = q.filter(Stats.match_type == match_type)
         if start_date:
             q = q.filter(Stats.date >= start_date)
         if end_date:
@@ -464,6 +509,7 @@ def report_csv():
     players = User.query.filter_by(role="player", active=True).all()
     start = request.args.get('start')
     end = request.args.get('end')
+    match_type = request.args.get('type')
     start_date = None
     end_date = None
     try:
@@ -481,6 +527,8 @@ def report_csv():
     writer.writerow(["name","matches","kills","damage","avg_kills","winrate"])
     for p in players:
         q = Stats.query.filter_by(player_id=p.id)
+        if match_type and match_type.lower() != "all":
+            q = q.filter(Stats.match_type == match_type)
         if start_date:
             q = q.filter(Stats.date >= start_date)
         if end_date:

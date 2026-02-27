@@ -31,6 +31,8 @@ class Stats(db.Model):
     damage = db.Column(db.Integer)
     survival = db.Column(db.Integer)
     screenshot = db.Column(db.String(200))
+    # match type: BR / CS / Scrims / Custom
+    match_type = db.Column(db.String(20))
 
 # ---------------- ATTENDANCE ----------------
 class Attendance(db.Model):

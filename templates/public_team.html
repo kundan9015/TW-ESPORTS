@@ -52,7 +52,18 @@
       <label class="muted small" for="teamSearch" style="display:block; text-align:left; margin-bottom:6px;">Search player / UID / role</label>
       <input id="teamSearch" type="text" class="form-control" placeholder="Type to filter..." />
     </div>
-    <div style="min-width: 240px; text-align:left;">
+    <div style="min-width: 200px; text-align:left;">
+      <label class="muted small" for="teamMode" style="display:block; margin-bottom:6px;">Mode</label>
+      {% set mode = match_type or 'overall' %}
+      <select id="teamMode" class="form-select form-select-sm" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color:#e6eef6;">
+        <option value="overall" {% if mode=='overall' %}selected{% endif %}>Overall</option>
+        <option value="BR" {% if mode=='BR' %}selected{% endif %}>BR</option>
+        <option value="CS" {% if mode=='CS' %}selected{% endif %}>CS</option>
+        <option value="Scrims" {% if mode=='Scrims' %}selected{% endif %}>Scrims</option>
+        <option value="Custom" {% if mode=='Custom' %}selected{% endif %}>Custom</option>
+      </select>
+    </div>
+    <div style="min-width: 220px; text-align:left;">
       <div class="muted small" style="margin-bottom:6px;">Points formula</div>
       <div class="pill" title="Scoring formula">2×kills + 10×booyah + damage/100 + 0.5×survival</div>
     </div>
@@ -230,6 +241,18 @@
     if(search){
       search.addEventListener('input', applyFilter);
       applyFilter();
+    }
+
+    // Mode selector: hit server with ?type=
+    var teamMode = document.getElementById('teamMode');
+    if (teamMode) {
+      teamMode.addEventListener('change', function(e){
+        var val = e.target.value || 'overall';
+        var base = window.location.pathname;
+        var params = new URLSearchParams(window.location.search);
+        params.set('type', val);
+        window.location = base + '?' + params.toString();
+      });
     }
 
   })();
