@@ -25,7 +25,7 @@ class Stats(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     player_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    date = db.Column(db.String(20))
+    date = db.Column(db.Date, nullable=False)
     kills = db.Column(db.Integer)
     booyah = db.Column(db.Integer)
     damage = db.Column(db.Integer)
@@ -37,7 +37,7 @@ class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     player_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    date = db.Column(db.String(20))
+    date = db.Column(db.Date, nullable=False)
     status = db.Column(db.String(10))  # Present / Absent
 
 # ---------------- ANNOUNCEMENTS ----------------

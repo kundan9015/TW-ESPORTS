@@ -1,3 +1,8 @@
+databases:
+  - name: tw-esports-db
+    databaseName: tw_esports
+    user: tw_esports_user
+
 services:
   # Web Application
   - type: web
@@ -6,8 +11,11 @@ services:
     region: singapore  # or frankfurt
     runtime: python312
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 1
     envVars:
       - key: SECRET_KEY
         generateValue: true
-  # Database: SQLite (esports.db) — file created automatically on first run
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tw-esports-db
+          property: connectionString

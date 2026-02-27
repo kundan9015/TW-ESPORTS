@@ -307,15 +307,27 @@ def report_data():
     start = request.args.get('start')
     end = request.args.get('end')
 
+    start_date = None
+    end_date = None
+    try:
+        start_date = datetime.strptime(start, "%Y-%m-%d").date() if start else None
+    except ValueError:
+        start_date = None
+    try:
+        end_date = datetime.strptime(end, "%Y-%m-%d").date() if end else None
+    except ValueError:
+        end_date = None
+
     players = User.query.filter_by(role="player", active=True).all()
     report = []
 
     for p in players:
-        records = Stats.query.filter_by(player_id=p.id).all()
-        if start:
-            records = [r for r in records if r.date >= start]
-        if end:
-            records = [r for r in records if r.date <= end]
+        q = Stats.query.filter_by(player_id=p.id)
+        if start_date:
+            q = q.filter(Stats.date >= start_date)
+        if end_date:
+            q = q.filter(Stats.date <= end_date)
+        records = q.all()
 
         matches = len(records)
         total_kills = sum(r.kills for r in records)
@@ -346,13 +358,30 @@ def report_data():
 def report_csv():
     # reuse report_data logic
     players = User.query.filter_by(role="player", active=True).all()
+    start = request.args.get('start')
+    end = request.args.get('end')
+    start_date = None
+    end_date = None
+    try:
+        start_date = datetime.strptime(start, "%Y-%m-%d").date() if start else None
+    except ValueError:
+        start_date = None
+    try:
+        end_date = datetime.strptime(end, "%Y-%m-%d").date() if end else None
+    except ValueError:
+        end_date = None
     import csv
     from io import StringIO
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(["name","matches","kills","damage","avg_kills","winrate"])
     for p in players:
-        records = Stats.query.filter_by(player_id=p.id).all()
+        q = Stats.query.filter_by(player_id=p.id)
+        if start_date:
+            q = q.filter(Stats.date >= start_date)
+        if end_date:
+            q = q.filter(Stats.date <= end_date)
+        records = q.all()
         matches = len(records)
         total_kills = sum(r.kills for r in records)
         total_damage = sum(r.damage for r in records)
@@ -382,7 +411,7 @@ def my_stats():
     data = []
     for r in records:
         data.append({
-            "date": r.date,
+            "date": r.date.isoformat() if r.date else None,
             "kills": r.kills,
             "booyah": r.booyah,
             "damage": r.damage,
