@@ -55,11 +55,15 @@ with app.app_context():
 # ---------------- HOME ----------------
 @app.route("/")
 def home():
-    return redirect(url_for("login"))
+    return redirect(url_for("public_team"))
 
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["GET","POST"])
 def login():
+
+    # already logged in -> go straight to dashboard
+    if current_user.is_authenticated:
+        return redirect(url_for("dashboard"))
 
     if request.method == "POST":
         username = (request.form.get("username") or "").strip()
@@ -72,6 +76,8 @@ def login():
         # CORRECT PASSWORD CHECK
         if user and user.active and check_password_hash(user.password, password):
             login_user(user, remember=True)
+            log_activity(user.username, user.id, "login")
+            return redirect(url_for("dashboard"))
         else:
             flash("Account deactivated or invalid credentials")
 
