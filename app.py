@@ -712,16 +712,6 @@ def change_password():
 
     return render_template("change_password.html")
 
-@app.route("/change_admin_name")
-def change_admin_name():
-    admin = User.query.filter_by(role="admin").first()
 
-    if not admin:
-        return "Admin not found"
-
-    admin.username = "TW_AIMED"
-    db.session.commit()
-
-    return "Admin username changed to TW_AIMED ✅"
 if __name__ == "__main__":
     app.run(debug=False)
