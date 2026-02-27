@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Log{% endblock %}
+
+{% block content %}
+<h1 class="neon-title mb-4">📋 Activity Log</h1>
+<p class="muted mb-3">Login, logout, and attendance marks (last 200)</p>
+
+<div class="table-responsive">
+  <table class="table table-dark table-striped align-middle">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>User</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in logs %}
+      <tr>
+        <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M') if log.created_at else '-' }}</td>
+        <td>{{ log.username }}</td>
+        <td>
+          {% if log.action == 'login' %}🔐 Login
+          {% elif log.action == 'logout' %}🚪 Logout
+          {% elif log.action == 'attendance_mark' %}✅ Attendance marked
+          {% else %}{{ log.action }}{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% if logs|length == 0 %}
+  <div class="glass-card" style="text-align: center; padding: 24px;">No activity yet.</div>
+{% endif %}
+<div class="mt-3">
+  <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+</div>
+{% endblock %}

@@ -23,6 +23,7 @@
     <th>Role</th>
     <th>Status</th>
     <th>Actions</th>
+    <th>Password</th>
 </tr>
 </thead>
 <tbody>
@@ -40,6 +41,7 @@
       <a href="/restore_player/{{ p.id }}" class="btn btn-sm btn-success" onclick="return confirm('Restore player {{ p.username }}?');">Restore</a>
       {% endif %}
     </td>
+    <td><a href="/reset_password/{{ p.id }}" class="btn btn-sm btn-outline-info">Reset password</a></td>
 </tr>
 {% endfor %}
 </tbody>

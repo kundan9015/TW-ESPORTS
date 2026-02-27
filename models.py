@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 
@@ -46,3 +47,22 @@ class Announcement(db.Model):
     message = db.Column(db.String(200))
     time = db.Column(db.String(20))
     date = db.Column(db.String(20))
+
+
+# ---------------- ACTIVITY LOG (login, logout, attendance) ----------------
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    username = db.Column(db.String(50), nullable=False)
+    action = db.Column(db.String(30), nullable=False)  # login, logout, attendance_mark
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<ActivityLog {self.username} {self.action}>"
+
+
+# ---------------- NOTIFICATIONS (admin add/delete, show on dashboard) ----------------
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(500), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
