@@ -70,12 +70,10 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         # CORRECT PASSWORD CHECK
-        if user and check_password_hash(user.password, password):
+        if user and user.active and check_password_hash(user.password, password):
             login_user(user, remember=True)
-            log_activity(user.username, user.id, "login")
-            return redirect(url_for("dashboard"))
         else:
-            flash("Invalid username or password")
+            flash("Account deactivated or invalid credentials")
 
     return render_template("login.html")
 
