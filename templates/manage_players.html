@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Players{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Manage Players</h1>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-info">{{ messages[0] }}</div>
+  {% endif %}
+{% endwith %}
+<div class="row mb-2">
+  <div class="col-md-6">
+    <input id="playerSearch" type="text" class="form-control form-control-sm" placeholder="Filter names">
+  </div>
+</div>
+<div class="table-responsive">
+<table id="playersTable" class="table table-dark table-striped align-middle">
+<thead>
+<tr>
+    <th>Username</th>
+    <th>FF UID</th>
+    <th>Role</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for p in players %}
+<tr>
+    <td>{{ p.username }}</td>
+    <td>{{ p.ff_uid }}</td>
+    <td>{{ p.player_role }}</td>
+    <td>{{ 'Active' if p.active else 'Inactive' }}</td>
+    <td>
+      {% if p.active %}
+      <a href="/delete_player/{{ p.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Deactivate player {{ p.username }}?');">Deactivate</a>
+      <a href="/toggle_role/{{ p.id }}" class="btn btn-sm btn-warning">{% if p.role=='player' %}Make Viewer{% else %}Make Player{% endif %}</a>
+      {% else %}
+      <a href="/restore_player/{{ p.id }}" class="btn btn-sm btn-success" onclick="return confirm('Restore player {{ p.username }}?');">Restore</a>
+      {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+<div class="text-center mt-3">
+  <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('playerSearch').addEventListener('input', function(e){
+  var term = e.target.value.toLowerCase();
+  document.querySelectorAll('#playersTable tbody tr').forEach(function(row){
+    var name = row.cells[0].innerText.toLowerCase();
+    row.style.display = name.includes(term) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

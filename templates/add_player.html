@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Add Player{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Create New Player</h2>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-danger">
+      {% for msg in messages %}{{ msg }}<br>{% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+<form method="POST" class="row g-3">
+  <div class="col-md-6">
+    <label class="form-label">Username</label>
+    <input type="text" class="form-control" name="username" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Password</label>
+    <input type="text" class="form-control" name="password" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Free Fire UID</label>
+    <input type="text" class="form-control" name="ff_uid" required>
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">Player Role</label>
+    <select class="form-select" name="player_role">
+        <option value="Rusher">Rusher</option>
+        <option value="Sniper">Sniper</option>
+        <option value="Support">Support</option>
+    </select>
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-success">Create Player</button>
+  </div>
+</form>
+<div class="text-center mt-3">
+  <a class="btn btn-secondary" href="/dashboard">Back to Dashboard</a>
+</div>
+{% endblock %}

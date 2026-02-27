@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<h1 class="neon-title mb-4">📊 Team Analytics Dashboard</h1>
+
+<div class="glass-card" style="margin-bottom: 20px;">
+  <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+    <div>
+      <label class="muted small">From:</label>
+      <input type="date" id="filterStart" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6; padding: 6px; border-radius: 6px;">
+    </div>
+    <div>
+      <label class="muted small">To:</label>
+      <input type="date" id="filterEnd" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6; padding: 6px; border-radius: 6px;">
+    </div>
+    <button class="btn-neon" id="applyFilter" style="padding: 6px 12px;">Filter</button>
+    <button class="btn-ghost" onclick="window.location='/api/report/csv'" style="padding: 6px 12px; cursor: pointer;">📥 Export CSV</button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    <div class="glass-card">
+      <h3 class="neon-title mb-3">Total Kills by Player</h3>
+      <canvas id="killsChart" style="max-height: 300px;"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6 mb-4">
+    <div class="glass-card">
+      <h3 class="neon-title mb-3">Win Rate Distribution</h3>
+      <canvas id="winChart" style="max-height: 300px;"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="glass-card">
+  <h3 class="neon-title mb-3">📋 Text Report</h3>
+  <div id="report" style="max-height: 400px; overflow-y: auto;"></div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/report.js') }}"></script>
+<script>
+// Custom styling for charts
+Chart.defaults.color = '#9aa4b2';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.02)';
+</script>
+{% endblock %}

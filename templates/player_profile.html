@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}{{ player.username }}{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin-bottom: 24px;">
+  <div class="avatar" style="margin-bottom: 12px;">🎮</div>
+  <h1 class="profile-name" style="font-size: 2rem;">{{ player.username }}</h1>
+  <div style="margin-top: 8px;">
+    <span class="badge-role">{{ player.player_role }}</span>
+  </div>
+</div>
+
+<div class="glass-grid" style="margin-bottom: 24px;">
+  <div class="glass-card">
+    <div class="profile-stat-label">Free Fire UID</div>
+    <div class="profile-stat-value" style="color: var(--accent-primary); margin-top: 8px;">{{ player.ff_uid }}</div>
+  </div>
+  <div class="glass-card">
+    <div class="profile-stat-label">Total Matches</div>
+    <div class="profile-stat-value" style="color: var(--cyan-glow); margin-top: 8px;">{{ matches }}</div>
+  </div>
+  <div class="glass-card">
+    <div class="profile-stat-label">Total Kills</div>
+    <div class="profile-stat-value" style="color: var(--accent-primary); margin-top: 8px;">{{ kills }}</div>
+  </div>
+  <div class="glass-card">
+    <div class="profile-stat-label">Win Rate</div>
+    <div class="profile-winrate" style="font-size: 1.8rem; margin-top: 8px;">{{ winrate }}%</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-6 mb-4">
+    <div class="glass-card">
+      <h3 class="neon-title mb-3">Performance Stats</h3>
+      <div style="display: grid; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+          <div class="profile-stat-label">Total Kills</div>
+          <div style="color: var(--accent-primary); font-weight: 700;">{{ kills }}</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+          <div class="profile-stat-label">Total Damage</div>
+          <div style="color: var(--cyan-glow); font-weight: 700;">{{ damage }}</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px;">
+          <div class="profile-stat-label">Best Kills</div>
+          <div style="color: var(--gold); font-weight: 700;">{{ player.best_kills }}</div>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <div class="profile-stat-label">Best Damage</div>
+          <div style="color: var(--gold); font-weight: 700;">{{ player.best_damage }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6 mb-4">
+    <div class="glass-card">
+      <h3 class="neon-title mb-3">📈 Kill Trend</h3>
+      <canvas id="killChart" style="max-height: 300px;"></canvas>
+    </div>
+  </div>
+</div>
+
+<script>
+async function loadPlayerGraph(){
+    const res = await fetch("/api/player_graph/{{ player.username }}");
+    const data = await res.json();
+
+    if(data.dates && data.dates.length > 0) {
+      new Chart(document.getElementById("killChart"), {
+          type: "line",
+          data: {
+              labels: data.dates,
+              datasets: [{
+                  label: "Kills per Match",
+                  data: data.kills,
+                  borderColor: '#22c55e',
+                  backgroundColor: 'rgba(34,197,94,0.1)',
+                  fill: true,
+                  tension: 0.4,
+                  pointBackgroundColor: '#60d69a',
+                  pointBorderColor: '#22c55e',
+                  pointRadius: 4,
+                  pointHoverRadius: 6
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                  y: { 
+                      beginAtZero: true,
+                      ticks: { color: '#9aa4b2' },
+                      grid: { color: 'rgba(255,255,255,0.02)' }
+                  },
+                  x: {
+                      ticks: { color: '#9aa4b2' },
+                      grid: { color: 'rgba(255,255,255,0.02)' }
+                  }
+              }
+          }
+      });
+    } else {
+      document.getElementById('killChart').parentElement.innerHTML = '<div class="muted" style="text-align: center; padding: 20px;">No match history available</div>';
+    }
+}
+loadPlayerGraph();
+</script>
+{% endblock %}

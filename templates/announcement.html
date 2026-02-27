@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Announcement{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">📢 Post Practice Announcement</h2>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div class="alert alert-success">{{ messages[0] }}</div>
+  {% endif %}
+{% endwith %}
+<form method="POST" class="row g-3">
+  <div class="col-md-4">
+    <label class="form-label">Message</label>
+    <input type="text" class="form-control" name="message" required>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Date</label>
+    <input type="date" class="form-control" name="date" required>
+  </div>
+  <div class="col-md-4">
+    <label class="form-label">Time</label>
+    <input type="time" class="form-control" name="time" required>
+  </div>
+  <div class="col-12">
+    <button type="submit" class="btn btn-success">Post</button>
+  </div>
+</form>
+<div class="text-center mt-3">
+  <a class="btn btn-secondary" href="/dashboard">Back</a>
+</div>
+{% endblock %}

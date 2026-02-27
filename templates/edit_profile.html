@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Edit Profile</h2>
+<form method="POST" class="row g-3 col-md-6 offset-md-3">
+  <div class="col-12">
+    <label class="form-label">Free Fire UID</label>
+    <input type="text" class="form-control" name="ff_uid" value="{{ user.ff_uid }}">
+  </div>
+  <div class="col-12">
+    <label class="form-label">Player Role</label>
+    <select class="form-select" name="player_role">
+      <option value="Rusher" {% if user.player_role=='Rusher' %}selected{% endif %}>Rusher</option>
+      <option value="Sniper" {% if user.player_role=='Sniper' %}selected{% endif %}>Sniper</option>
+      <option value="Support" {% if user.player_role=='Support' %}selected{% endif %}>Support</option>
+    </select>
+  </div>
+  <div class="col-12 text-center">
+    <button type="submit" class="btn btn-success">Save Changes</button>
+  </div>
+</form>
+<div class="text-center mt-3">
+  <a class="btn btn-secondary" href="/dashboard">Cancel</a>
+</div>
+{% endblock %}

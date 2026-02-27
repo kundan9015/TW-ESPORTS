@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block head %}
+<script src="{{ url_for('static', filename='js/leaderboard.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+  <h1 class="neon-title">🏆 Tournament Leaderboard</h1>
+  <input id="tableSearch" type="text" class="form-control" placeholder="Search players..." style="max-width: 200px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); color: #e6eef6;">
+</div>
+
+<div class="glass-card">
+  <div style="overflow-x: auto;">
+    <table style="width: 100%; border-collapse: separate; border-spacing: 0 8px;">
+      <thead>
+        <tr style="color: var(--accent-primary); text-align: left; font-weight: 700;">
+          <th style="padding: 12px; width: 60px;">Rank</th>
+          <th style="padding: 12px;">Player</th>
+          <th style="padding: 12px; text-align: right;">Kills</th>
+          <th style="padding: 12px; text-align: right;">Booyah</th>
+          <th style="padding: 12px; text-align: right;">Damage</th>
+          <th style="padding: 12px; text-align: right;">Survival</th>
+          <th style="padding: 12px; text-align: right;">Score</th>
+        </tr>
+      </thead>
+      <tbody id="board">
+        {% for player in board %}
+        <tr class="{% if loop.index==1 %}gold{% elif loop.index==2 %}silver{% elif loop.index==3 %}bronze{% endif %}" style="background: linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02)); border-radius: 8px; transition: all .12s ease;">
+          <td style="padding: 12px; border-radius: 8px 0 0 8px;">
+            <span class="rank-badge {% if loop.index==1 %}gold{% elif loop.index==2 %}silver{% elif loop.index==3 %}bronze{% endif %}">{{ loop.index }}</span>
+          </td>
+          <td style="padding: 12px;">
+            <a href="/player/{{ player.name }}" style="color: var(--text-secondary); text-decoration: none; font-weight: 600; transition: color .12s ease;">{{ player.name }}</a>
+          </td>
+          <td style="padding: 12px; text-align: right;">{{ player.kills }}</td>
+          <td style="padding: 12px; text-align: right; color: var(--gold);">{{ player.booyah }}</td>
+          <td style="padding: 12px; text-align: right;">{{ player.damage }}</td>
+          <td style="padding: 12px; text-align: right;">{{ player.survival }}</td>
+          <td style="padding: 12px; text-align: right; border-radius: 0 8px 8px 0; color: var(--accent-primary); font-weight: 700;">{{ player.score }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="muted small" style="margin-top: 12px; text-align: center;">Score = 2×kills + 10×booyah + damage/100 + 0.5×survival</div>
+</div>
+
+<style>
+  .rank-badge {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .gold {
+    background: linear-gradient(90deg, #ffd54a, #ffb74d);
+    color: #111;
+    box-shadow: 0 8px 30px rgba(255, 181, 33, 0.12);
+  }
+  .silver {
+    background: linear-gradient(90deg, #cfcfcf, #e6e6e6);
+    color: #111;
+    box-shadow: 0 8px 30px rgba(200, 200, 200, 0.08);
+  }
+  .bronze {
+    background: linear-gradient(90deg, #c27a4b, #b06a3b);
+    color: #fff;
+    box-shadow: 0 8px 30px rgba(180, 110, 60, 0.08);
+  }
+  #board tr:hover {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.04)) !important;
+    transform: translateX(4px);
+  }
+</style>
+
+<script>
+// Search/filter
+const searchInput = document.getElementById('tableSearch');
+searchInput.addEventListener('input', (e) => {
+  const term = e.target.value.toLowerCase();
+  document.querySelectorAll('#board tr').forEach((row) => {
+    const name = row.cells[1].textContent.toLowerCase();
+    row.style.display = name.includes(term) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

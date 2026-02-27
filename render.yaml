@@ -1,0 +1,13 @@
+services:
+  # Web Application
+  - type: web
+    name: tw-esports
+    env: python
+    region: singapore  # or frankfurt
+    runtime: python312
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+  # Database: SQLite (esports.db) — file created automatically on first run
