@@ -26,7 +26,7 @@
         <div class="topcard-name">{{ p.name }}</div>
         <div class="muted small" style="margin-top:2px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
           <span class="pill">UID: {{ p.ff_uid or '-' }}</span>
-          <span class="role-badge {% if (p.player_role or '')|lower == 'rusher' %}role-rusher{% elif (p.player_role or '')|lower == 'sniper' %}role-sniper{% elif (p.player_role or '')|lower == 'support' %}role-support{% else %}role-unknown{% endif %}">
+          <span class="role-badge {% if (p.player_role or '')|lower == 'rusher' %}role-rusher{% elif (p.player_role or '')|lower == 'sniper' %}role-sniper{% elif (p.player_role or '')|lower == 'support' %}role-support{% elif (p.player_role or '')|lower == 'igl' %}role-igl{% elif (p.player_role or '')|lower == 'nadder' %}role-nadder{% else %}role-unknown{% endif %}">
             {{ p.player_role or 'Role' }}
           </span>
         </div>
@@ -91,7 +91,7 @@
             {% endif %}
           </td>
           <td style="padding: 12px;">
-            <span class="role-badge {% if (p.player_role or '')|lower == 'rusher' %}role-rusher{% elif (p.player_role or '')|lower == 'sniper' %}role-sniper{% elif (p.player_role or '')|lower == 'support' %}role-support{% else %}role-unknown{% endif %}">
+            <span class="role-badge {% if (p.player_role or '')|lower == 'rusher' %}role-rusher{% elif (p.player_role or '')|lower == 'sniper' %}role-sniper{% elif (p.player_role or '')|lower == 'support' %}role-support{% elif (p.player_role or '')|lower == 'igl' %}role-igl{% elif (p.player_role or '')|lower == 'nadder' %}role-nadder{% else %}role-unknown{% endif %}">
               {{ p.player_role or '-' }}
             </span>
           </td>
@@ -197,6 +197,8 @@
   .role-rusher{ border-color: rgba(34,255,136,0.25); color: var(--accent-primary); }
   .role-sniper{ border-color: rgba(0,229,255,0.25); color: var(--cyan-glow); }
   .role-support{ border-color: rgba(124,92,255,0.35); color: var(--accent-secondary); }
+  .role-igl{ border-color: rgba(255,215,0,0.25); color: var(--gold); }
+  .role-nadder{ border-color: rgba(239,68,68,0.25); color: #ff8a8a; }
   .role-unknown{ opacity: 0.9; }
 
   .team-row:hover{

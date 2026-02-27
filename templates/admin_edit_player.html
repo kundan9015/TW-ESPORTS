@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Player{% endblock %}
+
+{% block content %}
+<h2 class="text-center mb-4">Edit Player</h2>
+
+<div class="glass-card" style="max-width: 720px; margin: 0 auto; text-align: left;">
+  <div class="muted small">Username</div>
+  <div style="color: var(--text-primary); font-weight: 800; font-size: 1.1rem; margin-bottom: 14px;">{{ player.username }}</div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <div class="alert alert-warning">{{ messages[0] }}</div>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" class="row g-3">
+    <div class="col-md-6">
+      <label class="form-label">Free Fire UID</label>
+      <input type="text" class="form-control" name="ff_uid" value="{{ player.ff_uid or '' }}" placeholder="e.g. 1234567890">
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Player Role</label>
+      <select class="form-select" name="player_role">
+        <option value="" {% if not player.player_role %}selected{% endif %}>— Select role —</option>
+        {% if player.player_role and player.player_role not in allowed_roles %}
+          <option value="{{ player.player_role }}" selected>Current: {{ player.player_role }}</option>
+        {% endif %}
+        {% for r in allowed_roles %}
+          <option value="{{ r }}" {% if player.player_role == r %}selected{% endif %}>{{ r }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-12 d-flex gap-2 flex-wrap">
+      <button type="submit" class="btn btn-success">Save</button>
+      <a href="{{ url_for('manage_players') }}" class="btn btn-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

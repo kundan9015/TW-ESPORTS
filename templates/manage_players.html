@@ -21,6 +21,7 @@
     <th>Username</th>
     <th>FF UID</th>
     <th>Role</th>
+    <th>Edit</th>
     <th>Status</th>
     <th>Actions</th>
     <th>Password</th>
@@ -32,6 +33,9 @@
     <td>{{ p.username }}</td>
     <td>{{ p.ff_uid }}</td>
     <td>{{ p.player_role }}</td>
+    <td>
+      <a href="{{ url_for('admin_edit_player', player_id=p.id) }}" class="btn btn-sm btn-outline-light">Edit</a>
+    </td>
     <td>{{ 'Active' if p.active else 'Inactive' }}</td>
     <td>
       {% if p.active %}

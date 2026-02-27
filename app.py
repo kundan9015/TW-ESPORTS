@@ -150,6 +150,37 @@ def manage_players():
     return render_template("manage_players.html", players=players)
 
 
+@app.route("/admin/edit_player/<int:player_id>", methods=["GET", "POST"])
+@login_required
+def admin_edit_player(player_id):
+    if current_user.role != "admin":
+        return "Access Denied", 403
+
+    player = db.session.get(User, player_id)
+    if not player or player.role not in ("player", "viewer"):
+        flash("Player not found.")
+        return redirect(url_for("manage_players"))
+
+    allowed_roles = ["Rusher", "Sniper", "Support", "IGL", "Nadder"]
+
+    if request.method == "POST":
+        ff_uid = (request.form.get("ff_uid") or "").strip()
+        player_role = (request.form.get("player_role") or "").strip()
+
+        # allow blank role, but validate if present
+        if player_role and player_role not in allowed_roles:
+            flash("Invalid player role selected.")
+            return render_template("admin_edit_player.html", player=player, allowed_roles=allowed_roles)
+
+        player.ff_uid = ff_uid
+        player.player_role = player_role
+        db.session.commit()
+        flash(f"Updated {player.username}.")
+        return redirect(url_for("manage_players"))
+
+    return render_template("admin_edit_player.html", player=player, allowed_roles=allowed_roles)
+
+
 @app.route("/delete_player_hard/<int:player_id>", methods=["POST"])
 @login_required
 def delete_player_hard(player_id):
