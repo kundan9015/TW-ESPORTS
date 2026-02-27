@@ -545,10 +545,13 @@ def edit_profile():
     return render_template("edit_profile.html", user=current_user)
 
 
-# ----------- CHANGE PASSWORD -----------
+# ----------- CHANGE PASSWORD (ADMIN ONLY) -----------
 @app.route("/change_password", methods=["GET","POST"])
 @login_required
 def change_password():
+    if current_user.role != "admin":
+        flash("Only admin can change password.")
+        return redirect(url_for("dashboard"))
 
     if request.method == "POST":
         old_pass = request.form.get("old_password") or ""
