@@ -29,9 +29,18 @@ login_manager.init_app(app)
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-# Create tables automatically
+# Create tables and default admin if no users exist
 with app.app_context():
     db.create_all()
+    if User.query.count() == 0:
+        admin_user = os.environ.get("ADMIN_USERNAME", "admin")
+        admin_pass = os.environ.get("ADMIN_PASSWORD", "admin123")
+        db.session.add(User(
+            username=admin_user,
+            password=generate_password_hash(admin_pass),
+            role="admin"
+        ))
+        db.session.commit()
 
 # ---------------- HOME ----------------
 @app.route("/")
