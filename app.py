@@ -111,7 +111,7 @@ def dashboard():
     user_stats = None
     if current_user.role == 'player':
         recs = Stats.query.filter_by(player_id=current_user.id).all()
-        total_kills = sum(r.kills for r in recs)
+        total_kills = sum((r.kills or 0) for r in recs)
         total_matches = len(recs)
         user_stats = {'kills': total_kills, 'matches': total_matches}
 
@@ -537,7 +537,7 @@ def leaderboard():
             q = q.filter(Stats.match_type == match_type)
         records = q.all()
 
-        total_kills = sum(r.kills for r in records)
+        total_kills = sum((r.kills or 0) for r in records)
         # legacy rows may not have position; treat booyah>0 as a win
         total_wins = sum(
             1
@@ -548,8 +548,8 @@ def leaderboard():
             position_to_points(r.position) if r.position is not None else (12 * (r.booyah or 0))
             for r in records
         )
-        total_damage = sum(r.damage for r in records)
-        total_survival = sum(r.survival for r in records)
+        total_damage = sum((r.damage or 0) for r in records)
+        total_survival = sum((r.survival or 0) for r in records)
 
         score = total_kills + total_position_points + (total_damage / 100) + (total_survival * 0.5)
 
@@ -593,7 +593,7 @@ def public_team():
             q = q.filter(Stats.match_type == match_type)
         records = q.all()
 
-        total_kills = sum(r.kills for r in records)
+        total_kills = sum((r.kills or 0) for r in records)
         total_wins = sum(
             1
             for r in records
@@ -603,8 +603,8 @@ def public_team():
             position_to_points(r.position) if r.position is not None else (12 * (r.booyah or 0))
             for r in records
         )
-        total_damage = sum(r.damage for r in records)
-        total_survival = sum(r.survival for r in records)
+        total_damage = sum((r.damage or 0) for r in records)
+        total_survival = sum((r.survival or 0) for r in records)
 
         score = total_kills + total_position_points + (total_damage / 100) + (total_survival * 0.5)
 
@@ -659,8 +659,8 @@ def report_data():
         records = q.all()
 
         matches = len(records)
-        total_kills = sum(r.kills for r in records)
-        total_damage = sum(r.damage for r in records)
+        total_kills = sum((r.kills or 0) for r in records)
+        total_damage = sum((r.damage or 0) for r in records)
         total_wins = sum(
             1
             for r in records
@@ -719,8 +719,8 @@ def report_csv():
             q = q.filter(Stats.date <= end_date)
         records = q.all()
         matches = len(records)
-        total_kills = sum(r.kills for r in records)
-        total_damage = sum(r.damage for r in records)
+        total_kills = sum((r.kills or 0) for r in records)
+        total_damage = sum((r.damage or 0) for r in records)
         total_wins = sum(
             1
             for r in records
@@ -779,8 +779,8 @@ def player_profile(username):
     records = Stats.query.filter_by(player_id=player.id).all()
 
     matches = len(records)
-    total_kills = sum(r.kills for r in records)
-    total_damage = sum(r.damage for r in records)
+    total_kills = sum((r.kills or 0) for r in records)
+    total_damage = sum((r.damage or 0) for r in records)
     total_wins = sum(
         1
         for r in records
@@ -1223,6 +1223,14 @@ def change_password():
 
     return render_template("change_password.html")
 
+
+# Show detailed traceback on 500 errors (helps debug; remove in production)
+@app.errorhandler(500)
+def handle_500(err):
+    import traceback
+    tb = "".join(traceback.format_exception(type(err), err, err.__traceback__))
+    print("=== 500 ERROR ===", tb)
+    return f"<pre>Server Error:\n{tb}</pre>", 500
 
 if __name__ == "__main__":
     app.run(debug=False)
