@@ -3,29 +3,75 @@
 {% block title %}Announcement{% endblock %}
 
 {% block content %}
-<h2 class="text-center mb-4">📢 Post Practice Announcement</h2>
-{% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <div class="alert alert-success">{{ messages[0] }}</div>
-  {% endif %}
-{% endwith %}
-<form method="POST" class="row g-3">
-  <div class="col-md-4">
+<h2 class="text-center mb-4">📢 Practice Announcements (Admin)</h2>
+
+<form method="POST" class="row g-3 mb-4">
+  <div class="col-md-5">
     <label class="form-label">Message</label>
     <input type="text" class="form-control" name="message" required>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-3">
     <label class="form-label">Date</label>
     <input type="date" class="form-control" name="date" required>
   </div>
-  <div class="col-md-4">
+  <div class="col-md-2">
     <label class="form-label">Time</label>
     <input type="time" class="form-control" name="time" required>
   </div>
-  <div class="col-12">
-    <button type="submit" class="btn btn-success">Post</button>
+  <div class="col-md-2 d-flex align-items-end">
+    <button type="submit" class="btn btn-success w-100">Post</button>
   </div>
 </form>
+
+<div class="glass-card">
+  <h5 class="mb-3">Existing Announcements</h5>
+  {% if announcements|length == 0 %}
+    <div class="muted small">No announcements yet.</div>
+  {% else %}
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Message</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th style="width: 140px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in announcements %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td>{{ a.message }}</td>
+            <td>{{ a.date }}</td>
+            <td>{{ a.time }}</td>
+            <td>
+              {% if a.active %}
+                <span class="badge bg-success">Visible</span>
+              {% else %}
+                <span class="badge bg-secondary">Hidden</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('announcement_toggle', ann_id=a.id) }}" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-outline-warning">
+                  {% if a.active %}Hide{% else %}Show{% endif %}
+                </button>
+              </form>
+              <form method="POST" action="{{ url_for('announcement_delete', ann_id=a.id) }}" style="display:inline;" onsubmit="return confirm('Delete this announcement?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+
 <div class="text-center mt-3">
   <a class="btn btn-secondary" href="/dashboard">Back</a>
 </div>

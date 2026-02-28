@@ -11,7 +11,7 @@ async function loadHistory(){
         <tr>
             <td>${r.date}</td>
             <td>${r.kills}</td>
-            <td>${r.booyah}</td>
+            <td>${r.position ?? '-'}</td>
             <td>${r.damage}</td>
             <td>${r.survival}</td>
         </tr>`;

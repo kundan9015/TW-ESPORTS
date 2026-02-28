@@ -20,13 +20,24 @@
           <img src="{{ url_for('static', filename='uploads/' + fname) }}" style="width: 100%; height: 160px; object-fit: cover; transition: transform .12s ease;">
           <div style="padding: 12px;">
             <div style="color: var(--accent-primary); font-weight: 600;">{{ p.player }}</div>
-            <div class="muted small">{{ p.date }} • {{ p.kills }} kills</div>
+            <div class="muted small">
+              {{ p.date }} • {{ p.kills }} kills
+              {% if p.position %} • Pos {{ p.position }}{% endif %}
+            </div>
           </div>
         </div>
-        <div style="padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.06);">
-          <form method="POST" action="{{ url_for('delete_proof', stat_id=p.id) }}" class="d-inline" onsubmit="return confirm('Delete this proof and match record?');">
-            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-          </form>
+        <div style="padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.06); display:flex; gap:6px; justify-content:space-between; flex-wrap:wrap;">
+          <div class="btn-group btn-group-sm" role="group">
+            <a href="{{ url_for('edit_proof', stat_id=p.id) }}" class="btn btn-outline-light">Edit</a>
+          </div>
+          <div class="d-flex gap-2">
+            <form method="POST" action="{{ url_for('delete_proof_image', stat_id=p.id) }}" class="d-inline" onsubmit="return confirm('Delete only the screenshot (keep record)?');">
+              <button type="submit" class="btn btn-sm btn-warning">Delete Image</button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_proof', stat_id=p.id) }}" class="d-inline" onsubmit="return confirm('Delete this proof and match record?');">
+              <button type="submit" class="btn btn-sm btn-danger">Delete Record+Image</button>
+            </form>
+          </div>
         </div>
       </div>
     {% endfor %}

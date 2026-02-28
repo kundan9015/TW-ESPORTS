@@ -28,6 +28,7 @@ class Stats(db.Model):
     date = db.Column(db.Date, nullable=False)
     kills = db.Column(db.Integer)
     booyah = db.Column(db.Integer)
+    position = db.Column(db.Integer)  # 1-12 placement; used for scoring
     damage = db.Column(db.Integer)
     survival = db.Column(db.Integer)
     screenshot = db.Column(db.String(200))
@@ -49,6 +50,7 @@ class Announcement(db.Model):
     message = db.Column(db.String(200))
     time = db.Column(db.String(20))
     date = db.Column(db.String(20))
+    active = db.Column(db.Boolean, default=True)
 
 
 # ---------------- ACTIVITY LOG (login, logout, attendance) ----------------

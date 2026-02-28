@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Match Record{% endblock %}
+
+{% block content %}
+<h1 class="neon-title mb-4">✏️ Edit Match Record</h1>
+
+<div class="row">
+  <div class="col-lg-6">
+    <div class="glass-card">
+      <h3 class="neon-title mb-3">Match Details</h3>
+      <form method="POST" enctype="multipart/form-data">
+        <div class="mb-3">
+          <label class="form-label">Player</label>
+          <input type="text" class="form-control" value="{{ player.username if player else 'Unknown' }}" disabled>
+        </div>
+
+        <div class="mb-3">
+          <label for="date" class="form-label">Date</label>
+          <input type="date" id="date" name="date" class="form-control" value="{{ stat.date.isoformat() if stat.date else '' }}" required>
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <div class="mb-3">
+              <label for="kills" class="form-label">Kills</label>
+              <input type="number" id="kills" name="kills" class="form-control" value="{{ stat.kills or 0 }}">
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="mb-3">
+              <label for="position" class="form-label">Position (1–12)</label>
+              <input type="number" id="position" name="position" min="1" max="12" class="form-control" value="{{ stat.position or '' }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-6">
+            <div class="mb-3">
+              <label for="damage" class="form-label">Damage</label>
+              <input type="number" id="damage" name="damage" class="form-control" value="{{ stat.damage or 0 }}">
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="mb-3">
+              <label for="survival" class="form-label">Survival (min)</label>
+              <input type="number" id="survival" name="survival" class="form-control" value="{{ stat.survival or 0 }}">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="match_type" class="form-label">Match Type</label>
+          <select id="match_type" name="match_type" class="form-select">
+            {% set mt = stat.match_type or '' %}
+            <option value="">(Any)</option>
+            <option value="BR" {% if mt=='BR' %}selected{% endif %}>BR</option>
+            <option value="CS" {% if mt=='CS' %}selected{% endif %}>CS</option>
+            <option value="Scrims" {% if mt=='Scrims' %}selected{% endif %}>Scrims</option>
+            <option value="Custom" {% if mt=='Custom' %}selected{% endif %}>Custom</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Replace Screenshot (optional)</label>
+          <input type="file" name="screenshot" class="form-control">
+          <div class="muted small mt-1">Leave empty to keep current image.</div>
+        </div>
+
+        <div class="d-flex gap-2 mt-3">
+          <button type="submit" class="btn-neon flex-grow-1">💾 Save Changes</button>
+          <a href="{{ url_for('proofs') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="glass-card">
+      <h3 class="neon-title mb-3">Current Screenshot</h3>
+      {% if stat.screenshot %}
+        {% set fname = (stat.screenshot or '').split('/')[-1] %}
+        <img src="{{ url_for('static', filename='uploads/' + fname) }}" style="width: 100%; border-radius: 10px; object-fit: contain; max-height: 360px;">
+      {% else %}
+        <div class="muted" style="padding: 20px;">No screenshot attached to this record.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

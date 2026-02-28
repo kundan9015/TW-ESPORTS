@@ -38,8 +38,12 @@
           </div>
           <div class="col-6">
             <div class="mb-3">
-              <label for="booyah" class="form-label">Booyah</label>
-              <input type="number" class="form-control" id="booyah" name="booyah" required>
+              <label for="position" class="form-label">Position (1–12)</label>
+              <select class="form-select" id="position" name="position" required>
+                {% for i in range(1,13) %}
+                  <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
         </div>
@@ -86,7 +90,7 @@
             <tr style="color: var(--accent-primary); border-bottom: 1px solid rgba(255,255,255,0.04);">
               <th style="text-align: left; padding: 8px;">Date</th>
               <th style="text-align: right; padding: 8px;">Kills</th>
-              <th style="text-align: right; padding: 8px;">Booyah</th>
+              <th style="text-align: right; padding: 8px;">Pos</th>
               <th style="text-align: right; padding: 8px;">DMG</th>
               <th style="text-align: right; padding: 8px;">Surv</th>
             </tr>
@@ -147,7 +151,7 @@ async function loadHistory() {
     row.innerHTML = `
       <td style="padding: 8px;">${record.date}</td>
       <td style="padding: 8px; text-align: right; color: var(--accent-primary);">${record.kills}</td>
-      <td style="padding: 8px; text-align: right; color: var(--cyan-glow);">${record.booyah}</td>
+      <td style="padding: 8px; text-align: right; color: var(--cyan-glow);">${record.position ?? '-'}</td>
       <td style="padding: 8px; text-align: right;">${record.damage}</td>
       <td style="padding: 8px; text-align: right;">${record.survival}</td>
     `;
