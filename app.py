@@ -105,7 +105,11 @@ def login():
 @login_required
 def dashboard():
 
-    latest = Announcement.query.filter_by(active=True).order_by(Announcement.id.desc()).first()
+    # some older databases may not have the 'active' column on announcement yet
+    try:
+        latest = Announcement.query.filter_by(active=True).order_by(Announcement.id.desc()).first()
+    except Exception:
+        latest = Announcement.query.order_by(Announcement.id.desc()).first()
     notifications = Notification.query.order_by(Notification.created_at.desc()).limit(10).all()
     # quick stats for the logged-in player
     user_stats = None
@@ -551,7 +555,7 @@ def leaderboard():
         total_damage = sum((r.damage or 0) for r in records)
         total_survival = sum((r.survival or 0) for r in records)
 
-        score = total_kills + total_position_points + (total_damage / 100) + (total_survival * 0.5)
+        score = total_kills + total_position_points + (total_damage / 1000) + (total_survival * 0.2)
 
         board.append({
             "name": p.username,
@@ -606,7 +610,7 @@ def public_team():
         total_damage = sum((r.damage or 0) for r in records)
         total_survival = sum((r.survival or 0) for r in records)
 
-        score = total_kills + total_position_points + (total_damage / 100) + (total_survival * 0.5)
+        score = total_kills + total_position_points + (total_damage / 1000) + (total_survival * 0.2)
 
         board.append({
             "name": p.username,
@@ -861,7 +865,7 @@ def delete_proof(stat_id):
     return redirect(url_for("proofs"))
 
 
-# ----------- DELETE ONLY SCREENSHOT (ADMIN) -----------
+# ----------- DELETE PROOF IMAGE (ADMIN) - removes stats entry + file from DB -----------
 @app.route("/delete_proof_image/<int:stat_id>", methods=["POST"])
 @login_required
 def delete_proof_image(stat_id):
@@ -871,6 +875,8 @@ def delete_proof_image(stat_id):
     if not stat:
         flash("Proof not found.")
         return redirect(url_for("proofs"))
+    player_id = stat.player_id
+    # remove file from disk if no other records share it
     if stat.screenshot:
         other_refs = Stats.query.filter(
             Stats.screenshot == stat.screenshot,
@@ -883,9 +889,15 @@ def delete_proof_image(stat_id):
                     os.remove(fpath)
                 except OSError:
                     pass
-        stat.screenshot = None
-        db.session.commit()
-        flash("Screenshot deleted, match record kept.")
+    db.session.delete(stat)
+    # update user best_kills / best_damage from remaining stats
+    user = db.session.get(User, player_id)
+    if user:
+        remaining = Stats.query.filter(Stats.player_id == player_id, Stats.id != stat_id).all()
+        user.best_kills = max(((r.kills or 0) for r in remaining), default=0)
+        user.best_damage = max(((r.damage or 0) for r in remaining), default=0)
+    db.session.commit()
+    flash("Proof and match record deleted from database.")
     return redirect(url_for("proofs"))
 
 
