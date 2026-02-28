@@ -5,11 +5,11 @@
 {% block content %}
 <h1 class="neon-title mb-4">📤 Bulk Match Upload (Admin)</h1>
 
-<div class="row">
-  <div class="col-lg-5">
-    <div class="glass-card">
-      <h3 class="neon-title mb-3">Match Info & Screenshot</h3>
-      <form id="bulkForm" method="POST" enctype="multipart/form-data">
+<form id="bulkForm" method="POST" enctype="multipart/form-data">
+  <div class="row">
+    <div class="col-lg-5">
+      <div class="glass-card">
+        <h3 class="neon-title mb-3">Match Info & Screenshot</h3>
         <div class="mb-3">
           <label for="date" class="form-label">Date</label>
           <input type="date" class="form-control" id="date" name="date" required>
@@ -30,38 +30,37 @@
           <input type="file" class="form-control" id="screenshot" name="screenshot" required>
           <div class="muted small mt-1">This image will be linked to all players in this match.</div>
         </div>
-
         <button type="submit" class="btn-neon w-100 mt-2">✅ Save All Records</button>
-      </form>
-    </div>
-  </div>
-
-  <div class="col-lg-7">
-    <div class="glass-card">
-      <h3 class="neon-title mb-3">Players in this Match</h3>
-      <div class="muted small mb-2">Add one row per player using this screenshot.</div>
-
-      <div class="table-responsive">
-        <table class="table table-sm align-middle" style="font-size: 13px;">
-          <thead>
-            <tr style="color: var(--accent-primary);">
-              <th>Player</th>
-              <th style="width: 70px; text-align:right;">Kills</th>
-              <th style="width: 80px; text-align:right;">Pos (1–12)</th>
-              <th style="width: 90px; text-align:right;">Damage</th>
-              <th style="width: 90px; text-align:right;">Survival</th>
-              <th style="width: 40px;"></th>
-            </tr>
-          </thead>
-          <tbody id="playerRows">
-          </tbody>
-        </table>
       </div>
+    </div>
 
-      <button type="button" class="btn btn-outline-success btn-sm" onclick="addRow()">＋ Add Player Row</button>
+    <div class="col-lg-7">
+      <div class="glass-card">
+        <h3 class="neon-title mb-3">Players in this Match</h3>
+        <div class="muted small mb-2">Add one row per player using this screenshot.</div>
+
+        <div class="table-responsive">
+          <table class="table table-sm align-middle" style="font-size: 13px;">
+            <thead>
+              <tr style="color: var(--accent-primary);">
+                <th>Player</th>
+                <th style="width: 70px; text-align:right;">Kills</th>
+                <th style="width: 80px; text-align:right;">Pos (1–12)</th>
+                <th style="width: 90px; text-align:right;">Damage</th>
+                <th style="width: 90px; text-align:right;">Survival</th>
+                <th style="width: 40px;"></th>
+              </tr>
+            </thead>
+            <tbody id="playerRows">
+            </tbody>
+          </table>
+        </div>
+
+        <button type="button" class="btn btn-outline-success btn-sm" onclick="addRow()">＋ Add Player Row</button>
+      </div>
     </div>
   </div>
-</div>
+</form>
 
 <script>
   const players = {{ players|tojson }};
